@@ -50,8 +50,8 @@ class HomePage(QMainWindow):
             self.CurrentGame = Game2()
 
         if idx == 3:  # Paint
-            from MainPage import MainWindow
-            self.CurrentGame = MainWindow()
+            from Games.Game3 import Game3
+            self.CurrentGame = Game3()
 
         if idx == 4:  # Route Designer
             from MainPage import MainWindow
@@ -66,6 +66,7 @@ class HomePage(QMainWindow):
 
     def CloseAll(self):
         self.close()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

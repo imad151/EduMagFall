@@ -31,10 +31,13 @@ class CameraThread(QThread):
         super().start()
 
     def stop(self):
+        print('Stopping Camera thread...')
         self.running = False
         self.quit()
         self.wait()
-        self.cap.release()
+        if self.cap.isOpened():
+            self.cap.release()
+            print("Camera resource released.")
 
 
 
@@ -50,7 +53,6 @@ class ImageProcessing:
         return cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
     def OutputProcessedCameraFrame(self, frame):
-        print(f'overlay point is: {self.overlay_point}')
         if self.overlay_point is None:
             self.frame = self.RotateImage(self.CropImage(frame))
             return self.frame
@@ -100,10 +102,14 @@ class CameraHandler:
 
     def CamEnabled(self):
         if self.CameraCheckbox.isChecked():
-            self.CameraThread.start()
+            if not self.CameraThread.isRunning():
+                print("Starting camera thread...")
+                self.CameraThread.start()
         else:
-            self.CameraThread.stop()
-            self.CamScene.clear()
+            if self.CameraThread.isRunning():
+                print("Started Stopping camera thread...")
+                self.CameraThread.stop()
+                self.CamScene.clear()
 
     def DisplayFrame(self, frame):
         self.CamScene.clear()
@@ -112,6 +118,7 @@ class CameraHandler:
 
     def closeEvent(self, event):
         self.CameraThread.stop()
+        self.CamScene.clear()
         event.accept()
 
 

@@ -1,10 +1,15 @@
+import time
+
 import pygame
 import math
+import threading
+
 
 class JoystickHandler:
     def __init__(self):
         pygame.joystick.init()
         self.joystick = None
+
 
     def initialize_joystick(self) -> bool:
         """Initializes the joystick, returns False if no joystick is connected, else True"""

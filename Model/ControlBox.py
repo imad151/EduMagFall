@@ -72,7 +72,6 @@ class ControlsHandler:
 
     def JoystickLogic(self):
         angle = self.Joystick.get_angle()
-        print(f'angle: {angle}')
         triggers = self.Joystick.get_triggers()
 
         if angle is not None:
