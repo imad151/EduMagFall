@@ -31,27 +31,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.Camera.executor": "Run",
-    "Python.ControlBox.executor": "Run",
-    "Python.EduMag.executor": "Run",
-    "Python.HomePage.executor": "Run",
-    "Python.Instructions.executor": "Run",
-    "Python.Joystick (1).executor": "Run",
-    "Python.Joystick.executor": "Run",
-    "Python.Keyboard.executor": "Run",
-    "Python.MainPage.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.test.executor": "Run",
-    "Python.tets.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/Users/imado/OneDrive/Desktop/240827_NewLayout/API"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.Camera.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ControlBox.executor&quot;: &quot;Run&quot;,
+    &quot;Python.EduMag.executor&quot;: &quot;Run&quot;,
+    &quot;Python.HomePage.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Instructions.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Joystick (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.Joystick.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Keyboard.executor&quot;: &quot;Run&quot;,
+    &quot;Python.MainPage.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.tets.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/imado/OneDrive/Desktop/240827_NewLayout/API&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\imado\OneDrive\Desktop\240827_NewLayout\API" />
