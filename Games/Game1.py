@@ -69,19 +69,18 @@ class Game1(QMainWindow):
         elapsed_time = time.time() - self.start_time
         if self.StartButton.isChecked() and elapsed_time <= self.duration:
             self.GameTimer.setValue(int(self.duration - elapsed_time))
-            self.Camera.points.append((tuple(self.target.astype(int)), (255, 0, 0)))  # (target, color)
+            self.Camera.points = np.array([[0, 0, 0, 0, 0], [self.target[0], self.target[1], 255, 0, 0]])
             pos = self.Camera.SendRobotPos()
-            print(pos)
 
             if pos is not None:
                 if np.linalg.norm(self.target - pos) <= 3:
                     self.target = self.RNG()
-                    self.Camera.points.clear()
+                    self.Camera.points = np.array([[0, 0, 0, 0, 0], [self.target[0], self.target[1], 255, 0, 0]])
                     self.ScoreSpinbox.setValue(self.ScoreSpinbox.value() + 1)
 
         else:
             self.StartButton.setChecked(False)
-            self.Camera.points.clear()
+            self.Camera.points = np.zeros((1, 5))
 
     def RNG(self, max_distance=40):
         phi = np.random.uniform(0, 2 * np.pi)

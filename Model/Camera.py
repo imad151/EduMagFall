@@ -135,20 +135,24 @@ class CameraHandler:
 
     def DrawElements(self):
         m, n = self.points.shape
-        if m == 2 and np.all(self.points != 0):
-            color = tuple(int(c) for c in self.points[1][2:5])
-            cv2.circle(self.frame,
-                       (int(self.points[1][0]), int(self.points[1][1])),
-                       thickness=-1, color=color,
-                       radius=3)
-        elif m > 2:
-            for i in range(1, m-1):
-                color = tuple(int(c) for c in self.points[i][2:5])
-                cv2.line(self.frame,
-                         (int(self.points[i][0]), int(self.points[i][1])),
-                         (int(self.points[i+1][0]), int(self.points[i+1][1])),
-                         color=color, thickness=1)
-        else: pass
+        print(self.points)
+        if np.all(self.points): pass  # pass if all elements are 0
+        else:
+            if m <= 2 and np.any(self.points):
+                color = tuple(int(c) for c in self.points[1][2:5])
+                cv2.circle(self.frame,
+                           (int(self.points[1][0]), int(self.points[1][1])),
+                           thickness=-1, color=color,
+                           radius=3)
+            elif m > 2:
+                for i in range(1, m - 1):
+                    color = tuple(int(c) for c in self.points[i][2:5])
+                    cv2.line(self.frame,
+                             (int(self.points[i][0]), int(self.points[i][1])),
+                             (int(self.points[i + 1][0]), int(self.points[i + 1][1])),
+                             color=color, thickness=1)
+            else:
+                pass
 
     def SendRobotPos(self):
         return self.ImageProcessing.GetPos(self.frame)
