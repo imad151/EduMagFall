@@ -135,7 +135,6 @@ class CameraHandler:
 
     def DrawElements(self):
         m, n = self.points.shape
-        print(self.points)
         if np.all(self.points): pass  # pass if all elements are 0
         else:
             if m <= 2 and np.any(self.points):
@@ -156,6 +155,9 @@ class CameraHandler:
 
     def SendRobotPos(self):
         return self.ImageProcessing.GetPos(self.frame)
+
+    def SaveFrame(self, file_name='img.png'):
+        cv2.imwrite(file_name, cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
 
     def closeEvent(self, event):
         self.points = np.array([0, 0, 0, 0, 0])

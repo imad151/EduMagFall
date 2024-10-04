@@ -1,3 +1,5 @@
+import  os
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
@@ -8,6 +10,7 @@ from Model.ControlBox import ControlsHandler
 from Model.ColorWheelLogic import PaintWheel
 
 import numpy as np
+from datetime import datetime
 
 
 class Game3(QMainWindow):
@@ -31,9 +34,11 @@ class Game3(QMainWindow):
     def InitUi(self):
         self.ColorWheelWidget = self.findChild(PaintWheel, "ColorWheel")
         self.JoystickCheckbox = self.findChild(QCheckBox, "JoystickCheckbox")
+        self.SaveImageButton = self.findChild(QPushButton, "SaveImage")
 
     def ConnectSignals(self):
         self.ColorWheelWidget.colorChanged.connect(self.ChangeSelectedColor)
+        self.SaveImageButton.pressed.connect(self.SaveFrame)
 
     def SetupTimer(self):
         self.timer = QTimer()
@@ -65,6 +70,15 @@ class Game3(QMainWindow):
 
     def ChangeSelectedColor(self, color):
         self.color = np.array([[color.red(), color.green(), color.blue()]])
+
+    def SaveFrame(self, file_name='img', folder='images'):
+        os.makedirs(folder, exist_ok=True)
+
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        file_name = os.path.join(folder, f'{file_name}-{timestamp}.png')
+
+        self.Camera.SaveFrame(file_name=file_name)
+        print(f'Image saved as {file_name}')
 
     def closeEvent(self, event):
         super().closeEvent(event)
