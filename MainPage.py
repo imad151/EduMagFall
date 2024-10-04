@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
         self.InstructionsButton.pressed.connect(self.ShowInstructions)
 
     def InitializeClasses(self):
+        t1 = time.time()
         self.Camera = CameraHandler(self)
         self.Controls = ControlsHandler(self)
 
@@ -31,9 +32,10 @@ class MainWindow(QMainWindow):
         self.InstructionsPane.show()
 
     def closeEvent(self, event):
+        super().closeEvent(event)
         self.Camera.closeEvent(event)
+        self.Controls.closeEvent()
         self.closed.emit()
-        event.accept()
 
 
 if __name__ == '__main__':

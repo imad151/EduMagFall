@@ -161,9 +161,9 @@ class Game2(QMainWindow):
             theta = self.Keyboard.get_angle()
 
     def closeEvent(self, event):
+        super().closeEvent(event)
         self.Camera.closeEvent(event)
         self.closed.emit()
-        super().closeEvent(event)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

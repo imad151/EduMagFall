@@ -1,8 +1,5 @@
-import time
-
 import pygame
 import math
-import threading
 
 
 class JoystickHandler:
@@ -45,3 +42,35 @@ class JoystickHandler:
         left_trigger = (self.joystick.get_axis(4) + 1) / 2
 
         return (right_trigger - left_trigger) * max_increase
+
+    def MapRightStick(self, threshold: float=0.1) -> float:
+        """
+        Use for colorwheel of paint game
+        Returns right joystick angle
+        :param threshold:
+        :return:
+        """
+        if self.joystick is not None:
+            right_x = self.joystick.get_axis(2)
+            right_y = self.joystick.get_axis(3)
+
+            if abs(right_x) > threshold or abs(right_y) > threshold:
+                angle = int(math.degrees(math.atan2(-right_y, right_x)))
+                if angle < 0:
+                    angle += 360
+                return angle
+
+            else:
+                return None
+
+    def GetJoystickButtons(self):
+        if self.joystick is not None:
+            if self.joystick.get_button(0):
+                return 'a'
+
+            if  self.joystick.get_button(7):
+                return 'start'
+
+    def QuitPygame(self):
+        if pygame.joystick.get_init():
+            pygame.joystick.quit()

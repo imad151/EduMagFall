@@ -82,6 +82,20 @@ class PaintWheel(QWidget):
         if event.button() == Qt.LeftButton:
             self.dragging = False  # Stop dragging
 
+    def wheelEvent(self, event):
+        delta = event.angleDelta().y() // 120  # 1 notch of wheel
+        current_hue = self.CurrentColor.hue()
+        new_hue = (current_hue + delta) % 360
+        self.SetColor(QColor.fromHsv(new_hue, 255, 255))
+
+    def UpdateFromJoystickAngle(self, angle: int):
+        """
+        Changes marker position with joystick
+        :param angle:
+        :return:
+        """
+        self.SetColor(QColor.fromHsv(angle % 360, 255, 255))
+
     def resizeEvent(self, event):
         size = min(event.size().width(), event.size().height())
         self.resize(size, size)

@@ -30,7 +30,6 @@ class Game1(QMainWindow):
     def InitializeClasses(self):
         self.Camera = CameraHandler(self)
         self.Controls = ControlsHandler(self)
-        self.ImageProcessing = ImageProcessing()
 
     def InitializeUi(self):
         self.StartButton = self.findChild(QCheckBox, 'StartButton')
@@ -57,23 +56,32 @@ class Game1(QMainWindow):
             self.timer.timeout.connect(self.GameLogic)
 
         else:
-            self.timer.timeout.disconnect(self.GameLogic)
+            self.StopGame()
+
+    def StopGame(self):
+        try: self.timer.timeout.disconnect(self.GameLogic)
+        except: pass
+
+        self.Camera.OverlayPoint = None
+        self.GameTimer.setValue(60)
 
     def GameLogic(self):
         elapsed_time = time.time() - self.start_time
         if self.StartButton.isChecked() and elapsed_time <= self.duration:
             self.GameTimer.setValue(int(self.duration - elapsed_time))
-            self.ImageProcessing.overlay_point = self.target.tolist()
-            pos = self.ImageProcessing.GetPos()
+            self.Camera.points.append((tuple(self.target.astype(int)), (255, 0, 0)))  # (target, color)
+            pos = self.Camera.SendRobotPos()
+            print(pos)
 
             if pos is not None:
                 if np.linalg.norm(self.target - pos) <= 3:
                     self.target = self.RNG()
+                    self.Camera.points.clear()
                     self.ScoreSpinbox.setValue(self.ScoreSpinbox.value() + 1)
 
         else:
             self.StartButton.setChecked(False)
-            self.ImageProcessing.overlay_point = None
+            self.Camera.points.clear()
 
     def RNG(self, max_distance=40):
         phi = np.random.uniform(0, 2 * np.pi)
@@ -90,7 +98,8 @@ class Game1(QMainWindow):
         self.Instructions.show()
 
     def closeEvent(self, event):
-        self.Camera.closeEvent(event)
-        self.closed.emit()
-        self.timer.stop()
         super().closeEvent(event)
+        self.Camera.closeEvent(event)
+        self.Controls.closeEvent()
+        self.timer.stop()
+        self.closed.emit()

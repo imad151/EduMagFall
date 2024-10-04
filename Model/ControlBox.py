@@ -1,3 +1,4 @@
+import pygame
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
@@ -17,6 +18,7 @@ class ControlsHandler:
         self.ConnectSignals()
         self.SendParams()
         self.SetupTimer()
+
 
     def InitializeUi(self) -> None:
         self.B_spinbox = self.window.findChild(QDoubleSpinBox, "B_spinbox")
@@ -86,6 +88,13 @@ class ControlsHandler:
         self.UpdateMinMax()
         self.G_spinbox.setValue(self.GetMaxG(self.B_spinbox.value()) * 0.3)
 
+    def GetJoyButtons(self):
+        input = self.Joystick.GetJoystickButtons()
+        return input
+
+    def GetRightStickValue(self):
+        return self.Joystick.MapRightStick()
+
     def UpdateJoystickStatus(self, idx: int):
         if idx == 0:
             self.JoystickCheckbox.setText(f'Joystick Connected')
@@ -139,6 +148,6 @@ class ControlsHandler:
         self.theta_spinbox.setValue(self.NormalizeDialToTheta(self.theta_dial.value()))
         self.SendParams(send=True)
 
-    def closeEvent(self, event):
-        event.accept()
-
+    def closeEvent(self):
+        if pygame.get_init():
+            self.Joystick.QuitPygame()
