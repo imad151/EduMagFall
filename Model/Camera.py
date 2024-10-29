@@ -93,7 +93,14 @@ class CameraHandler:
         self.ShowFrame = False
         self.frame = None
 
-        self.points = np.array([[0, 0, 0, 0, 0]])
+        self.drawn_points = None
+        self.point = False
+
+        self.outline = False
+        self.outlined_points = None
+
+        self.drawn_line = None
+        self.line = False
 
 
     def InitializeUi(self):
@@ -120,7 +127,10 @@ class CameraHandler:
         if self.ShowFrame:
             self.CamScene.clear()
             self.frame = frame
-            try: self.DrawElements()
+            try:
+                self.DrawPoints()
+                self.DrawLines()
+                self.HighlightElements()
             except: pass
             h, w, ch = self.frame.shape
             bytes_per_line = ch * w
@@ -130,28 +140,33 @@ class CameraHandler:
         else:
             self.CamScene.clear()
 
-    def AddPoints(self, point_matrix):
-        self.points = np.vstack((self.points, point_matrix))
-
-    def DrawElements(self):
-        m, n = self.points.shape
-        if np.all(self.points): pass  # pass if all elements are 0
-        else:
-            if m <= 2 and np.any(self.points):
-                color = tuple(int(c) for c in self.points[1][2:5])
+    def DrawPoints(self):
+        if self.point:
+            points = self.drawn_points
+            m, n = points.shape
+            for i in range(m):
+                color = tuple(int(c) for c in points[i][2:5])
                 cv2.circle(self.frame,
-                           (int(self.points[1][0]), int(self.points[1][1])),
-                           thickness=-1, color=color,
-                           radius=3)
-            elif m > 2:
-                for i in range(1, m - 1):
-                    color = tuple(int(c) for c in self.points[i][2:5])
-                    cv2.line(self.frame,
-                             (int(self.points[i][0]), int(self.points[i][1])),
-                             (int(self.points[i + 1][0]), int(self.points[i + 1][1])),
-                             color=color, thickness=1)
-            else:
-                pass
+                           (int(points[i][0]), int(points[i][1])),
+                           thickness=-1, color=color, radius=3)
+
+    def HighlightElements(self):
+        if self.outline:
+            m, n = self.outlined_points.shape
+            for i in range(m):
+                color = tuple(int(c) for c in self.outlined_points[i][2:5])
+                cv2.circle(self.frame,
+                           (int(self.outlined_points[i][0]), int(self.outlined_points[i][1])),
+                           thickness=1, radius=5, color=color)
+
+    def DrawLines(self):
+        if self.line:
+            m, n = self.drawn_line.shape
+            for i in range(m-1):
+                color = tuple(int(c) for c in self.drawn_line[i][2:5])
+                cv2.line(self.frame, (int(self.drawn_line[i][0]), int(self.drawn_line[i][1])),
+                         (int(self.drawn_line[i+1][0]), int(self.drawn_line[i+1][1])),
+                         color=color, thickness=1)
 
     def SendRobotPos(self):
         return self.ImageProcessing.GetPos(self.frame)
@@ -160,7 +175,10 @@ class CameraHandler:
         cv2.imwrite(file_name, cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
 
     def closeEvent(self, event):
-        self.points = np.array([0, 0, 0, 0, 0])
+        self.outline = False
+        self.outlined_point = None
+        self.line = False
+        self.drawn_line = None
         self.CameraThread.stop()
         self.CamScene.clear()
         event.accept()

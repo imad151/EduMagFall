@@ -54,8 +54,8 @@ class HomePage(QMainWindow):
             self.CurrentGame = Game3()
 
         if idx == 4:  # Route Designer
-            from MainPage import MainWindow
-            self.CurrentGame = MainWindow()
+            from Games.Game4 import Game4
+            self.CurrentGame = Game4()
 
         self.CurrentGame.showMaximized()
         self.CurrentGame.closed.connect(self.OnGameClosed)

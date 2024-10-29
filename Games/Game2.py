@@ -1,17 +1,17 @@
 import numpy as np
-
+from PyQt5 import uic
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
-from PyQt5 import uic
 
-from Model.EduMag import EduMagHandler
 from Model.Camera import CameraHandler
+from Model.EduMag import EduMagHandler
 from Model.Instructions import InstructionsPane
 from Model.Keyboard import ArrowKeyAngle
 
 
 class Game2(QMainWindow):
-    closed =  pyqtSignal()
+    closed = pyqtSignal()
+
     def __init__(self):
         super(QMainWindow, self).__init__()
         uic.loadUi('UI/Table.ui', self)
@@ -29,7 +29,7 @@ class Game2(QMainWindow):
         self.RemoveOneButton = self.findChild(QPushButton, "RemoveOneButton")
         self.RemoveAllButton = self.findChild(QPushButton, "RemoveAllButton")
         self.ExecuteButton = self.findChild(QPushButton, "ExecuteButton")
-        self.StopButton = self.findChild(QPushButton, "StopButton")
+        self.PauseCheckBox = self.findChild(QCheckBox, "PauseButton")
 
         self.B_spinbox = self.findChild(QDoubleSpinBox, "B_spinbox")
         self.G_spinbox = self.findChild(QDoubleSpinBox, "G_spinbox")
@@ -61,7 +61,7 @@ class Game2(QMainWindow):
         if time != 0:
             if B != 0:
                 inputs = [B, G, theta, time]
-                I = self.Edumag.GetCurrents(B, G, theta, send=False)
+                I = self.Edumag.GetCurrents(B, G, int(theta), send=False)
 
                 if not np.all(I == 0):
                     row_count = self.CommandsBox.rowCount()
@@ -104,20 +104,19 @@ class Game2(QMainWindow):
         self.ProcessNext()
 
     def ProcessNext(self):
-        try:
-            row = next(self.iter)
-            param = row[:3]
-            delay = int(row[-1])
+        if not self.PauseCheckBox.isChecked():
+            try:
+                row = next(self.iter)
+                param = row[:3]
+                delay = int(row[-1])
 
-            self.Edumag.GetCurrents(param[0], param[1], param[2])
+                self.Edumag.GetCurrents(param[0], param[1], param[2])
 
-            QTimer.singleShot(delay * 1000, self.ProcessNext)
-            if self.StopButton.isDown():
-                raise StopIteration
+                QTimer.singleShot(delay * 1000, self.ProcessNext)
 
-        except StopIteration:
-            self.Edumag.GetCurrents(0, 0, 0)
-            pass
+            except StopIteration:
+                self.Edumag.GetCurrents(0, 0, 0)
+                pass
 
     def ShowSelectedVecField(self):
         SelectedItem = self.CommandsBox.selectedItems()
@@ -169,5 +168,3 @@ class Game2(QMainWindow):
         super().resizeEvent(event)
         self.ResizeTableWidget()
         self.Edumag.ResizeVecField()
-
-

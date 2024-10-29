@@ -757,7 +757,7 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QPushButton" name="StopButton">
+         <widget class="QCheckBox" name="PauseButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
             <horstretch>0</horstretch>
@@ -769,8 +769,11 @@
             <pointsize>10</pointsize>
            </font>
           </property>
+          <property name="layoutDirection">
+           <enum>Qt::RightToLeft</enum>
+          </property>
           <property name="text">
-           <string>Stop</string>
+           <string>Break</string>
           </property>
          </widget>
         </item>

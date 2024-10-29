@@ -1,4 +1,4 @@
-import  os
+import os
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -12,6 +12,9 @@ from Model.Instructions import InstructionsPane
 
 import numpy as np
 from datetime import datetime
+
+import subprocess
+import platform
 
 
 class Game3(QMainWindow):
@@ -27,6 +30,7 @@ class Game3(QMainWindow):
         self.SetupTimer()
 
         self.color = np.array([[255, 0, 0]])  # default red
+        self.AllPoints = np.array([])
 
     def InitializeClasses(self):
         self.Controls = ControlsHandler(self)
@@ -59,6 +63,7 @@ class Game3(QMainWindow):
         Joy_Input = self.Controls.GetJoyButtons()
         if Joy_Input == 'a':
             self.HandleDraw()
+            #time.sleep(0.1)
         if Joy_Input == 'start':
             self.ClearAllElements()
 
@@ -66,22 +71,36 @@ class Game3(QMainWindow):
         pos = self.Camera.SendRobotPos()
         if pos is not None:
             current_point_mat = np.hstack((pos.reshape(1, -1), self.color))
-            self.Camera.AddPoints(current_point_mat)
+            if self.AllPoints.shape[0] >= 1:
+                self.AllPoints = np.vstack((self.AllPoints, current_point_mat))
+                self.Camera.line = True
+                self.Camera.drawn_line = self.AllPoints
+            else:
+                self.AllPoints = current_point_mat
+                self.Camera.point = True
+                self.Camera.drawn_points = self.AllPoints
 
     def ClearAllElements(self):
-        self.Camera.points = np.array([[0, 0, 0, 0, 0]])
+        self.Camera.point = False
 
     def ChangeSelectedColor(self, color):
         self.color = np.array([[color.red(), color.green(), color.blue()]])
 
     def SaveFrame(self, file_name='img', folder='images'):
-        os.makedirs(folder, exist_ok=True)
+        if self.Camera.CameraCheckbox.isChecked():
+            os.makedirs(folder, exist_ok=True)
 
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        file_name = os.path.join(folder, f'{file_name}-{timestamp}.png')
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            file_name = os.path.join(folder, f'{file_name}-{timestamp}.png')
 
-        self.Camera.SaveFrame(file_name=file_name)
-        print(f'Image saved as {file_name}')
+            self.Camera.SaveFrame(file_name=file_name)
+            print(f'Image saved as {file_name}')
+
+            path = os.path.abspath(folder)
+            if platform.system() == 'Windows':
+                subprocess.Popen(['explorer', path])
+            else:
+                subprocess.Popen(['xdg-open', path])
 
     def ShowInstructions(self, game_index=3):
         self.Instructions = InstructionsPane()

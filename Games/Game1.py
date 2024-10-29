@@ -25,7 +25,8 @@ class Game1(QMainWindow):
 
         self.duration = 0
         self.start_time = 0
-        self.target = np.array([150, 150])
+        self.target = np.array([[150, 150]])
+        self.color = np.array([[255, 0, 0]])
 
     def InitializeClasses(self):
         self.Camera = CameraHandler(self)
@@ -48,11 +49,11 @@ class Game1(QMainWindow):
         if self.StartButton.isChecked():
             if not self.Camera.CameraCheckbox.isChecked():
                 self.Camera.CameraCheckbox.setChecked(True)
-
+            self.Camera.point = True
             self.duration = self.GameTimer.value()
             self.start_time = time.time()
             self.ScoreSpinbox.setValue(0)
-            self.target = np.array([150, 150])
+            self.target = np.array([[150, 150]])
             self.timer.timeout.connect(self.GameLogic)
 
         else:
@@ -69,18 +70,19 @@ class Game1(QMainWindow):
         elapsed_time = time.time() - self.start_time
         if self.StartButton.isChecked() and elapsed_time <= self.duration:
             self.GameTimer.setValue(int(self.duration - elapsed_time))
-            self.Camera.points = np.array([[0, 0, 0, 0, 0], [self.target[0], self.target[1], 255, 0, 0]])
+            target_point = np.hstack((self.target, self.color))
+            self.Camera.drawn_points = target_point
             pos = self.Camera.SendRobotPos()
 
             if pos is not None:
                 if np.linalg.norm(self.target - pos) <= 3:
                     self.target = self.RNG()
-                    self.Camera.points = np.array([[0, 0, 0, 0, 0], [self.target[0], self.target[1], 255, 0, 0]])
+                    self.Camera.drawn_points = np.hstack((self.target, self.color))
                     self.ScoreSpinbox.setValue(self.ScoreSpinbox.value() + 1)
 
         else:
             self.StartButton.setChecked(False)
-            self.Camera.points = np.zeros((1, 5))
+            self.Camera.point = False
 
     def RNG(self, max_distance=40):
         phi = np.random.uniform(0, 2 * np.pi)
@@ -89,7 +91,7 @@ class Game1(QMainWindow):
         x = r * np.cos(phi) + 150
         y = r * np.sin(phi) + 150
 
-        return np.array([x, y])
+        return np.array([[x, y]])
 
     def ShowInstructions(self):
         self.Instructions = InstructionsPane()

@@ -68,7 +68,7 @@ class JoystickHandler:
             if self.joystick.get_button(0):
                 return 'a'
 
-            if  self.joystick.get_button(7):
+            if self.joystick.get_button(7):
                 return 'start'
 
     def QuitPygame(self):
