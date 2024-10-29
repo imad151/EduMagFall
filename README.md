@@ -5,4 +5,4 @@ Working code of Fall URP in DGIST BMR
 2. Added Keyboard support
 3. New Layout with an added HomeScreen
 4. (Completed) Paint Game
-5. (Not Added Yet) Route Designing Game
+5. (Completed) Route Designing Game
