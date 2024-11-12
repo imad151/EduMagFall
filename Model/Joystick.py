@@ -7,7 +7,6 @@ class JoystickHandler:
         pygame.joystick.init()
         self.joystick = None
 
-
     def initialize_joystick(self) -> bool:
         """Initializes the joystick, returns False if no joystick is connected, else True"""
         joystick_count = pygame.joystick.get_count()
@@ -70,6 +69,9 @@ class JoystickHandler:
 
             if self.joystick.get_button(7):
                 return 'start'
+
+            if self.joystick.get_button(1):
+                return 'b'
 
     def QuitPygame(self):
         if pygame.joystick.get_init():

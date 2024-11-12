@@ -5,6 +5,8 @@ from PyQt5 import uic
 
 from Model.Camera import CameraHandler
 from Model.ControlBox import ControlsHandler
+from Model.Instructions import InstructionsPane
+from Model.MST import MST
 
 import numpy as np
 import scipy as sp
@@ -41,6 +43,7 @@ class Game4(QMainWindow):
         self.ScoreSpinbox = self.findChild(QSpinBox, "ScoreBox")
         self.GiveUpButton = self.findChild(QPushButton, "ShowSolutionButton")
         self.SavePNGButton = self.findChild(QPushButton, "SaveImageButton")
+        self.InstructionsButton = self.findChild(QPushButton, "InstructionsButton")
 
     def InitializeClasses(self):
         self.Camera = CameraHandler(self)
@@ -51,6 +54,7 @@ class Game4(QMainWindow):
         self.CheckButton.pressed.connect(self.AnalyzeUserInput)
         self.GiveUpButton.pressed.connect(self.UserGiveUp)
         self.SavePNGButton.pressed.connect(self.SaveImage)
+        self.InstructionsButton.pressed.connect(self.ShowInstructions)
 
     def SetupTimer(self):
         self.timer = QTimer()
@@ -80,8 +84,8 @@ class Game4(QMainWindow):
 
     def GenerateNodes(self):
         difficulty = self.DifficultyBox.currentText()
-        if difficulty == 'Medium': num_nodes = 17
-        elif difficulty == 'Hard': num_nodes = 10
+        if difficulty == 'Medium': num_nodes = 10
+        elif difficulty == 'Hard': num_nodes = 13
         else: num_nodes = 5  # 5 nodes for all unknown cases + easy
 
         num_clusters = np.random.randint(2, 5)
@@ -128,6 +132,9 @@ class Game4(QMainWindow):
 
         if joy_input == 'start':
             self.ResetConnections()
+
+        if joy_input == 'b':
+            self.UndoAction()
 
     def CheckForNode(self):
         pos = self.Camera.SendRobotPos()
@@ -245,7 +252,7 @@ class Game4(QMainWindow):
                 self.ShowSolution()
             else:
                 self.GiveUpButton.setText('Show Solution')
-                self.Camera.line = False
+                self.Camera.drawn_line = self.ConnectedNodes
 
     def ShowSolution(self, color=(0, 255, 0)):
         color = np.array([color])
@@ -263,17 +270,20 @@ class Game4(QMainWindow):
         self.Camera.drawn_line = formatted_points
 
     def CalculateMST(self) -> list:
-        dist = sp.spatial.distance.cdist(self.nodes, self.nodes, 'euclidean')
-        mst = sp.sparse.csgraph.minimum_spanning_tree(dist).toarray().astype(int)
-        connected_points = []
-        for i in range(len(self.nodes)):
-            for j in range(len(self.nodes)):
-                if mst[i, j] > 0:
-                    connected_points.append([
-                        int(self.nodes[i][0]), int(self.nodes[i][1]),
-                        int(self.nodes[j][0]), int(self.nodes[j][1])
-                    ])
-        return connected_points
+        MST_instance = MST(self.nodes)
+
+        return MST_instance.CalculateMST()
+
+    def UndoAction(self):
+        if self.SelectedNode is not None:
+            self.SelectedNode = None
+            self.Camera.outline = False
+
+        elif self.ConnectedNodes.shape[0] >= 1:
+            print(self.ConnectedNodes)
+            self.ConnectedNodes = self.ConnectedNodes[:-2]
+            print(self.ConnectedNodes)
+            self.Camera.drawn_line = self.ConnectedNodes
 
     def SaveImage(self, file_name='path_img', folder='images'):
         if self.CameraCheckbox.isChecked():
@@ -290,6 +300,11 @@ class Game4(QMainWindow):
                 subprocess.Popen(['explorer', path])
             elif platform.system() == "Linux":
                 subprocess.Popen(['xdg-open', path])
+
+    def ShowInstructions(self, game_index=4):
+        self.Instructions = InstructionsPane()
+        self.Instructions.ShowInstructionsPane(idx=game_index)
+        self.Instructions.show()
 
     def closeEvent(self, event):
         super().closeEvent(event)

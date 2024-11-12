@@ -19,6 +19,9 @@ class InstructionsPane(QMainWindow):
         elif idx == 3:  # Game 3
             uic.loadUi('UI/Game3Instructions.ui', self)
 
+        elif idx == 4:  # Game 4
+            uic.loadUi('UI/Game4Instructions.ui', self)
+
         else:
             print(f'Invalid index of Instructions: {idx}')
 

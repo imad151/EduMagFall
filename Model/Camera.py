@@ -92,6 +92,7 @@ class CameraHandler:
 
         self.ShowFrame = False
         self.frame = None
+        self.UneditedFrame = None
 
         self.drawn_points = None
         self.point = False
@@ -128,6 +129,7 @@ class CameraHandler:
             self.CamScene.clear()
             self.frame = frame
             try:
+                self.UneditedFrame = frame
                 self.DrawPoints()
                 self.DrawLines()
                 self.HighlightElements()
@@ -169,7 +171,7 @@ class CameraHandler:
                          color=color, thickness=1)
 
     def SendRobotPos(self):
-        return self.ImageProcessing.GetPos(self.frame)
+        return self.ImageProcessing.GetPos(self.UneditedFrame)
 
     def SaveFrame(self, file_name='img.png'):
         cv2.imwrite(file_name, cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
