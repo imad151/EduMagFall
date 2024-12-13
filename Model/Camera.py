@@ -5,13 +5,17 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from picamera2 import Picamera2
+
 
 class CameraThread(QThread):
     frame_captured = pyqtSignal(np.ndarray)
 
     def __init__(self, idx: int = 0):
         super().__init__()
-        self.cap = cv2.VideoCapture(idx, cv2.CAP_DSHOW)
+        self.cam = Picamera2()
+        self.cam.configure(self.cam.creat_video_configuration(main={"format": "XRGB888"}))
+        self.cam.start()
         self.running = False
         self.ImageProcessing = ImageProcessing()
 
@@ -92,7 +96,7 @@ class CameraHandler:
 
         self.ShowFrame = False
         self.frame = None
-        self.UneditedFrame = None
+        self.ElementsFrame = None
 
         self.drawn_points = None
         self.point = False
@@ -127,16 +131,19 @@ class CameraHandler:
     def DisplayFrame(self, frame):
         if self.ShowFrame:
             self.CamScene.clear()
+            h, w, ch = frame.shape
             self.frame = frame
-            try:
-                self.UneditedFrame = frame
+            try: 
+                self.ElementsFrame = np.zeros((h, w, ch), dtype=np.uint8)
                 self.DrawPoints()
                 self.DrawLines()
                 self.HighlightElements()
-            except: pass
-            h, w, ch = self.frame.shape
+                frame = cv2.addWeighted(frame, 0.9, self.ElementsFrame, 1.0, 10)
+            except Exception as e:
+                print(f'Error while drawing: {e}')
+                pass
             bytes_per_line = ch * w
-            q_img = QImage(self.frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+            q_img = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
             self.CamScene.addPixmap(QPixmap.fromImage(q_img))
             self.CamView.fitInView(self.CamScene.sceneRect(), Qt.KeepAspectRatio)
         else:
@@ -148,7 +155,7 @@ class CameraHandler:
             m, n = points.shape
             for i in range(m):
                 color = tuple(int(c) for c in points[i][2:5])
-                cv2.circle(self.frame,
+                cv2.circle(self.ElementsFrame,
                            (int(points[i][0]), int(points[i][1])),
                            thickness=-1, color=color, radius=3)
 
@@ -157,7 +164,7 @@ class CameraHandler:
             m, n = self.outlined_points.shape
             for i in range(m):
                 color = tuple(int(c) for c in self.outlined_points[i][2:5])
-                cv2.circle(self.frame,
+                cv2.circle(self.ElementsFrame,
                            (int(self.outlined_points[i][0]), int(self.outlined_points[i][1])),
                            thickness=1, radius=5, color=color)
 
@@ -166,21 +173,26 @@ class CameraHandler:
             m, n = self.drawn_line.shape
             for i in range(m-1):
                 color = tuple(int(c) for c in self.drawn_line[i][2:5])
-                cv2.line(self.frame, (int(self.drawn_line[i][0]), int(self.drawn_line[i][1])),
+                cv2.line(self.ElementsFrame, (int(self.drawn_line[i][0]), int(self.drawn_line[i][1])),
                          (int(self.drawn_line[i+1][0]), int(self.drawn_line[i+1][1])),
                          color=color, thickness=1)
 
     def SendRobotPos(self):
-        return self.ImageProcessing.GetPos(self.UneditedFrame)
+        return self.ImageProcessing.GetPos(self.frame)
 
-    def SaveFrame(self, file_name='img.png'):
-        cv2.imwrite(file_name, cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
+    def SaveFrame(self, file_name='img.png', file2_name='images/overlayimg'):
+        frame = cv2.addWeighted(self.frame, 0.8, self.ElementsFrame, 1.0, 10)
+        cv2.imwrite(file_name, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        if self.ElementsFrame is not None:
+            cv2.imwrite(file2_name, cv2.cvtColor(self.ElementsFrame, cv2.COLOR_BGR2RGB))
 
     def closeEvent(self, event):
         self.outline = False
         self.outlined_point = None
         self.line = False
         self.drawn_line = None
+        self.ElementsFrame = None
+        self.frame = None
         self.CameraThread.stop()
         self.CamScene.clear()
         event.accept()
